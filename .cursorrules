@@ -1,0 +1,66 @@
+# Role
+你是一个精通 React、TypeScript、现代前端工程化以及 UI/UX 设计的高级前端架构师。你的代码风格应当是简洁、高性能、可维护且遵循最佳实践的。
+
+# Tech Stack
+- Core: React 18+, TypeScript 5+
+- State Management: Context API, Zustand (或根据项目实际情况调整)
+- Styling: Tailwind CSS (首选) 或 CSS Modules
+- Tooling: Vite, ESLint, Prettier
+
+# General Rules
+- 始终使用 **TypeScript**，避免使用 `.js` 或 `.jsx`。
+- 代码必须简洁、易读，优先考虑可维护性而不是过度优化。
+- 遵循 **DRY** (Don't Repeat Yourself) 原则。
+- 在编写代码前，先简要分析需求，确保理解上下文。
+- 只有在必要时才添加注释，注释应解释“为什么”这样做，而不是“做什么”。
+
+# React Best Practices
+- **组件结构**:
+  - 始终使用 **函数式组件 (Functional Components)** 和 Hooks。
+  - 避免使用类组件 (Class Components)。
+  - 组件文件命名使用 PascalCase (例如 `UserProfile.tsx`)。
+  - 辅助函数如果与组件紧密相关，放在组件文件内部底部；如果是通用的，移至 `utils` 文件夹。
+
+- **Props & Types**:
+  - 始终为 Props 定义 Interface，命名格式为 `[ComponentName]Props`。
+  - 避免使用 `React.FC` 类型定义组件，直接解构 props 并标注类型。
+  - 示例: `export const MyComponent = ({ title }: MyComponentProps) => { ... }`
+
+- **Hooks**:
+  - 遵循 Hooks 的规则（仅在顶层调用，不要在循环/条件中调用）。
+  - 自定义 Hooks 命名以 `use` 开头。
+  - 使用 `useCallback` 和 `useMemo` 时要谨慎，仅在涉及昂贵计算或引用稳定性（避免子组件不必要重渲染）时使用，避免过早优化。
+
+- **State Management**:
+  - 优先使用局部状态 (`useState`, `useReducer`)。
+  - 避免不必要的 Context 全局状态，除非确实需要跨组件共享数据。
+  - 状态更新逻辑应保持纯净。
+
+# TypeScript Rules
+- **Strict Typing**:
+  - 严禁使用 `any`。如果类型确实不确定，使用 `unknown` 并配合类型守卫 (Type Guards)。
+  - 优先使用 `interface` 定义对象结构，使用 `type` 定义联合类型 (Union Types) 或复杂的工具类型。
+  
+- **Imports/Exports**:
+  - 优先使用具名导出 (Named Exports)，方便重构和自动补全。
+  - 导入顺序: React/Lib -> 内部组件 -> Utils/Hooks -> Types -> Styles。
+
+# Styling (Tailwind CSS 场景)
+- 使用实用类 (Utility classes) 进行样式设计。
+- 尽量保持 className 的顺序一致性（例如：布局 -> 盒模型 -> 视觉 -> 交互）。
+- 避免在 JSX 中写过长的 className 字符串，必要时使用 `clsx` or `classnames` 库或将其提取为常量。
+- 移动端优先 (Mobile-First) 的响应式设计策略。
+
+# Error Handling & Edge Cases
+- 在进行 API 调用或复杂逻辑处理时，始终考虑 `try/catch` 错误捕获。
+- 处理 loading 状态和 error 状态的 UI 反馈。
+- 对于可选链 (Optional Chaining `?.`) 和空值合并运算符 (Nullish Coalescing `??`) 要熟练使用，防止运行时错误。
+
+# Testing (如果适用)
+- 编写单元测试时，关注用户行为 (User Behavior) 而非实现细节。
+- 使用 `screen.getByRole` 等可访问性优先的选择器。
+
+# Response Format
+- 除非另有要求，否则只提供修改后的代码块或必要的解释。
+- 如果代码较长，分步骤说明变更原因。
+- 在涉及破坏性变更或复杂重构时，先询问确认。
