@@ -24,6 +24,30 @@ Generate a native iOS project from the existing React web application so the use
 5. **Output**:
    - A generic `ios/` directory will be created containing the Xcode project.
 
-## Verification
-- **Existence**: Check if `ios/App/App.xcodeproj` exists.
 - **Compilation**: User needs to open Xcode to build/run, but I can verifying the `npx cap sync` success.
+
+# AR Face Overlay Implementation
+
+## Goal
+Overlay the 3D Avatar on the user's face in the camera feed, acting as a mask while retaining expression tracking.
+
+## Implemented Changes
+### `src/components/CameraManager.tsx`
+- **Video Style**: Full-screen, `object-fit: contain` (to avoid zoom/crop issues), `z-index: -1`.
+- **Mirroring**: Added CSS transform `scaleX(-1)` for user-facing camera to simulate a mirror.
+- **Data Injection**: Passes `videoWidth`, `videoHeight`, and `facingMode` to `Avatar`.
+
+### `src/components/Avatar.tsx`
+- **Positioning**: moved from Matrix-based to **Landmark-based** (using Nose Tip index 1).
+    - Maps 2D landmarks to 3D Viewport coordinates with Aspect Ratio correction.
+    - Handles "Contain" letterboxing/pillarboxing.
+- **Scaling**: **Auto-scaling** based on cheek-to-cheek distance in the video feed.
+- **Rotation**: Uses MediaPipe Matrix, but with **ZYX Euler Order** and inverted logic (flipped Z) to match the mirrored self-view.
+- **Visibility**: Avatar hides (`visible = false`) when no faces are detected.
+
+## Verification
+- **Visual**: Avatar acts as a perfect mask over the face.
+- **Tracking**:
+    - **Tilt**: Tilting head Left tilts Avatar Left (Mirror behavior).
+    - **Pan**: Moving Head Left moves Avatar Left (Mirror behavior).
+    - **Scale**: Moving closer/further scales the Avatar smoothly.

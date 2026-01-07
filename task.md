@@ -8,3 +8,6 @@
 - [x] Implement Camera Toggle
 - [x] Fix Zero-Dimension Crashing Bug
 - [x] Polish UI (Remove Debug Console)
+- [x] Implement AR Face Overlay (Avatar mask)
+- [x] Refine Tracking and Visibility logic
+- [x] Fix AR Alignment (Mirroring, Scaling, Landmarks)
