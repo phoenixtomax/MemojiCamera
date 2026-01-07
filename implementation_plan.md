@@ -41,7 +41,11 @@ Overlay the 3D Avatar on the user's face in the camera feed, acting as a mask wh
 - **Positioning**: moved from Matrix-based to **Landmark-based** (using Nose Tip index 1).
     - Maps 2D landmarks to 3D Viewport coordinates with Aspect Ratio correction.
     - Handles "Contain" letterboxing/pillarboxing.
-- **Scaling**: **Auto-scaling** based on cheek-to-cheek distance in the video feed.
+- **Model**: Switched to **MediaPipe Raccoon Head** (official sample, head-only, 52 blendshapes).
+- **Scaling**: **Dynamic Auto-Calibration**:
+    - Calculates Unscaled Model Width once on load.
+    - Updates per-frame: `TargetScale = (FaceWidthInPixels / ModelUnitWidth) * 1.15`.
+    - Includes **Lerp Smoothing** (0.3 factor) to prevent flickering/jitter.
 - **Rotation**: Uses MediaPipe Matrix, but with **ZYX Euler Order** and inverted logic (flipped Z) to match the mirrored self-view.
 - **Visibility**: Avatar hides (`visible = false`) when no faces are detected.
 
