@@ -115,12 +115,19 @@ export function Avatar({ faceDataRef }: { faceDataRef: any }) {
                 //     -position.z * positionScale
                 // );
 
-                // Size Fix:
-                // User said "Too Big". 
-                // Previous baseScale was 1.0. Let's reduce it significantly.
-                // The matrix scale from MediaPipe is often normalized or in cm.
-                // Rotation
-                headRef.current.rotation.set(rotation.x, -rotation.y, rotation.z);
+                // Rotation Fix:
+                // User reported Left Tilt resulted in Right Tilt (with -z).
+                // Wait, user just said "Face tilts one way, avatar tilts OTHER".
+                // In line 123 of current file (Step 708), it shows: rotation.z (positive)
+                // This means Step 634/640 (which set it to positive) was indeed wrong for the user's specific case?
+                // Wait, Step 634 output says: "We need to NEGATE Z" -> but the code snippet showed `-rotation.z`.
+                // Let's look closely at Step 708 line 123:
+                // "headRef.current.rotation.set(rotation.x, -rotation.y, rotation.z);"
+                // It is POSITIVE. The comment above (lines 101+) discusses ZYX order.
+                // So currently it is POSITIVE Z.
+                // User says: "Face tilts one way, Avatar tilts OTHER". This implies INVERSION.
+                // So I need to NEGATE it to `-rotation.z` to fix it.
+                headRef.current.rotation.set(rotation.x, -rotation.y, -rotation.z);
 
                 // Scale -> Handled by landmarks above
                 // headRef.current.scale.set(scale.x * 0.6, scale.y * 0.6, scale.z * 0.6);
