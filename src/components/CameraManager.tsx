@@ -35,8 +35,7 @@ export function CameraManager({ onResult }: CameraManagerProps) {
 
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
+                        // Let OS decide native resolution to avoid digital zoom
                         facingMode: facingMode
                     }
                 });
@@ -75,15 +74,19 @@ export function CameraManager({ onResult }: CameraManagerProps) {
                     const startTimeMs = performance.now();
                     const results = faceLandmarker.detectForVideo(videoRef.current, startTimeMs);
 
+                    // Inject video dimensions for Aspect Ratio correction in Avatar
+                    (results as any).videoWidth = videoRef.current.videoWidth;
+                    (results as any).videoHeight = videoRef.current.videoHeight;
+                    (results as any).facingMode = facingMode;
+
                     // Log every 100 frames (~3s) to avoid spam but confirm life
                     lastLog++;
                     if (lastLog % 100 === 0) {
                         console.log(`Detecting... Faces found: ${results.faceBlendshapes.length}`);
                     }
 
-                    if (results.faceBlendshapes.length > 0) {
-                        onResult(results);
-                    }
+                    // Always send results, even if empty, so the Avatar knows to hide.
+                    onResult(results);
                 } catch (e) {
                     console.error("Detection error:", e);
                 }
@@ -94,7 +97,7 @@ export function CameraManager({ onResult }: CameraManagerProps) {
         return () => {
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
         };
-    }, [onResult]);
+    }, [onResult, facingMode]);
 
     return (
         <>
@@ -104,11 +107,14 @@ export function CameraManager({ onResult }: CameraManagerProps) {
                     position: "absolute",
                     top: 0,
                     left: 0,
-                    width: "1px", // Keep it in DOM but tiny/invisible
-                    height: "1px",
-                    opacity: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain", // Show full sensor (un-zoomed)
+                    opacity: 1,
                     pointerEvents: 'none',
-                    zIndex: -1
+                    zIndex: -1,
+                    // Mirror if user facing
+                    transform: facingMode === 'user' ? 'scaleX(-1)' : 'none'
                 }}
                 playsInline
                 muted

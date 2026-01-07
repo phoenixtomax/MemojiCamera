@@ -12,7 +12,7 @@ export function Experience() {
     };
 
     return (
-        <div style={{ width: "100vw", height: "100vh", position: "relative", background: "#111" }}>
+        <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
             {/* 
         CameraManager is invisible (opacity 0) or small. 
         It handles the logic of pumping video frames to MediaPipe.
@@ -20,7 +20,6 @@ export function Experience() {
             <CameraManager onResult={handleFaceResult} />
 
             <Canvas camera={{ position: [0, 0, 8], fov: 40 }}>
-                <color attach="background" args={['#111']} />
                 {/* Lighting */}
                 <ambientLight intensity={1.5} />
                 <directionalLight position={[10, 10, 5]} intensity={2} />
