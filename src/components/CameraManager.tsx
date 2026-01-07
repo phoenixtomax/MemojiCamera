@@ -9,6 +9,7 @@ export function CameraManager({ onResult }: CameraManagerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const lastVideoTime = useRef(-1);
     const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+    const [isRecording, setIsRecording] = useState(false);
     const requestRef = useRef<number>(0);
 
     useEffect(() => {
@@ -120,24 +121,91 @@ export function CameraManager({ onResult }: CameraManagerProps) {
                 muted
                 autoPlay
             />
-            <button
-                onClick={() => setFacingMode(prev => prev === 'user' ? 'environment' : 'user')}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                    zIndex: 2000,
-                    padding: '10px 20px',
-                    background: 'rgba(255,255,255,0.8)',
-                    borderRadius: '8px',
-                    border: 'none',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    color: 'black'
-                }}
-            >
-                Switch Camera ({facingMode})
-            </button>
+
+            {/* Camera UI Layer */}
+            <div style={{
+                position: 'absolute',
+                bottom: '40px',
+                left: 0,
+                right: 0,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0 40px',
+                zIndex: 2000
+            }}>
+                {/* GALLERY BUTTON (Left) */}
+                <button
+                    onClick={() => console.log('Open Gallery')}
+                    style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: '2px solid white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backdropFilter: 'blur(10px)',
+                        cursor: 'pointer'
+                    }}
+                >
+                    {/* Placeholder Icon: Simple Image Stack */}
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                </button>
+
+                {/* RECORD BUTTON (Center) */}
+                <button
+                    onClick={() => setIsRecording(!isRecording)}
+                    style={{
+                        width: '72px',
+                        height: '72px',
+                        borderRadius: '50%',
+                        border: '4px solid white',
+                        background: 'transparent',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <div style={{
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: isRecording ? '8px' : '50%', // Square when recording
+                        background: '#FF3B30',
+                        transition: 'all 0.2s ease'
+                    }} />
+                </button>
+
+                {/* SWITCH CAMERA BUTTON (Right) */}
+                <button
+                    onClick={() => setFacingMode(prev => prev === 'user' ? 'environment' : 'user')}
+                    style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '50%',
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        border: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backdropFilter: 'blur(10px)',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 4v6h-6" />
+                        <path d="M1 20v-6h6" />
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
+                </button>
+            </div>
         </>
     );
 }
