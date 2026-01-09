@@ -4,6 +4,7 @@ import { Media } from "@capacitor-community/media";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Camera } from "@capacitor/camera";
+import { Share } from "@capacitor/share";
 
 interface CameraManagerProps {
     onResult: (result: any) => void;
@@ -149,38 +150,48 @@ export function CameraManager({ onResult, canvasRef }: CameraManagerProps) {
 
         // Ensure composition happens at least once before starting
         const stream = compositorCanvasRef.current.captureStream(30); // 30 FPS
-        const options: MediaRecorderOptions = { mimeType: 'video/webm;codecs=vp9' };
 
-        // Check supported mime types
-        if (!MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-            if (MediaRecorder.isTypeSupported('video/webm')) {
-                options.mimeType = 'video/webm';
-            } else if (MediaRecorder.isTypeSupported('video/mp4')) {
-                options.mimeType = 'video/mp4';
-            } else {
-                options.mimeType = ''; // Default
-            }
+        // iOS Safari prefers 'video/mp4' (H.264)
+        // We avoid specifying codecs explicitly to let browser pick best supported one.
+        let mimeType = '';
+        if (MediaRecorder.isTypeSupported('video/mp4')) {
+            mimeType = 'video/mp4';
+        } else if (MediaRecorder.isTypeSupported('video/webm')) {
+            mimeType = 'video/webm';
         }
+
+        const options: MediaRecorderOptions = mimeType ? { mimeType } : {};
 
         try {
             const recorder = new MediaRecorder(stream, options);
             recordedChunks.current = [];
 
             recorder.ondataavailable = (e) => {
-                if (e.data.size > 0) recordedChunks.current.push(e.data);
+                if (e.data.size > 0) {
+                    recordedChunks.current.push(e.data);
+                }
             };
 
             recorder.onstop = async () => {
-                const blob = new Blob(recordedChunks.current, { type: 'video/mp4' });
-                saveVideo(blob);
+                // Use the recorder's actual mime type to create the blob
+                const type = recorder.mimeType || 'video/mp4'; // Fallback
+                const blob = new Blob(recordedChunks.current, { type: type });
+                console.log(`Recorder stopped. Blob size: ${blob.size}, Type: ${type}`);
+
+                if (blob.size > 0) {
+                    saveVideo(blob, type);
+                } else {
+                    alert("Recording failed: Video is empty.");
+                }
             };
 
             recorder.start();
             mediaRecorderRef.current = recorder;
             setIsRecording(true);
-            console.log("Recording started...");
+            console.log(`Recording started. MimeType: ${recorder.mimeType}`);
         } catch (e) {
             console.error("Failed to start MediaRecorder", e);
+            alert("Failed to start recording: " + (e as any).message);
         }
     };
 
@@ -192,13 +203,17 @@ export function CameraManager({ onResult, canvasRef }: CameraManagerProps) {
         }
     };
 
-    const saveVideo = async (blob: Blob) => {
+    const saveVideo = async (blob: Blob, mimeType: string) => {
+        // Determine extension
+        const ext = mimeType.includes('webm') ? 'webm' : 'mp4';
+        const fileName = `memoji-${Date.now()}.${ext}`;
+
         if (!Capacitor.isNativePlatform()) {
             // Web fallback: download
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `memoji-${Date.now()}.mp4`;
+            a.download = fileName;
             a.click();
             return;
         }
@@ -208,26 +223,40 @@ export function CameraManager({ onResult, canvasRef }: CameraManagerProps) {
             const reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onloadend = async () => {
-                const base64data = reader.result as string;
-                // Save to Filesystem first? No, Media plugin can accept base64 or path.
-                // Media plugin expects path if saving to gallery?
-                // Documentation says: saveVideo({ path: '...' }) where path can be file uri.
-                // It also supports writing file first.
+                const result = reader.result as string;
+                // data:video/mp4;base64,.....
+                const base64Data = result.split(',')[1];
 
-                const fileName = `memoji-${Date.now()}.mp4`;
+                // Write to cache
                 const savedFile = await Filesystem.writeFile({
                     path: fileName,
-                    data: base64data.split(',')[1], // Remove data:video/mp4;base64, prefix
+                    data: base64Data,
                     directory: Directory.Cache
                 });
 
+                console.log("File saved to cache:", savedFile.uri);
+
                 // Save to Gallery
-                await Media.saveVideo({ path: savedFile.uri });
-                alert("Video saved to Gallery!");
+                console.log("File saved to cache:", savedFile.uri);
+
+                try {
+                    // Try direct save
+                    // Revert hack: iOS usually prefers valid URIs, retry with full URI first or maybe it was the stripping that broke it?
+                    // Actually, let's keep it simple: try standard save, if fails, use Share.
+                    await Media.saveVideo({ path: savedFile.uri });
+                    alert("Video saved to Gallery!");
+                } catch (mediaError) {
+                    console.warn("Direct save failed, attempting Share fallback...", mediaError);
+                    // Fallback to Share Sheet
+                    await Share.share({
+                        title: 'Memoji Video',
+                        url: savedFile.uri,
+                    });
+                }
             };
         } catch (e) {
             console.error("Save failed", e);
-            alert("Failed to save video.");
+            alert("Failed to save/share video: " + (e as any).message);
         }
     };
 

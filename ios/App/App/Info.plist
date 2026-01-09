@@ -49,5 +49,11 @@
 	<true/>
     <key>NSCameraUsageDescription</key>
     <string>We need access to the camera to track facial expressions.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>We need permission to save your recordings to the gallery.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need permission to select videos/photos from the gallery.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need access to the microphone to record audio with your video.</string>
 </dict>
 </plist>

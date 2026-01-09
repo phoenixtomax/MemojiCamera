@@ -35,7 +35,21 @@ Overlay the 3D Avatar on the user's face in the camera feed, acting as a mask wh
 ### `src/components/CameraManager.tsx`
 - **Video Style**: Full-screen, `object-fit: contain` (to avoid zoom/crop issues), `z-index: -1`.
 - **Mirroring**: Added CSS transform `scaleX(-1)` for user-facing camera to simulate a mirror.
-- **Data Injection**: Passes `videoWidth`, `videoHeight`, and `facingMode` to `Avatar`.
+- **UI Layout**: Implemented Bottom Bar Layout:
+    - **Bottom-Left**: Gallery Button (Opens System Image Picker).
+    - **Bottom-Center**: Record/Shutter Button (Visual State Toggle).
+    - **Bottom-Right**: Switch Camera Button (Toggles Facing Mode).
+- **Recorded Video**:
+    - **Composite**: Draws `<video>` frame + WebGL Canvas to a hidden `compositorCanvas`.
+    - **Capture**: Uses `MediaRecorder` on composite stream (30fps).
+    - **Saving**:
+        - Writes Blob to Capacitor Filesystem.
+        - Tries `Media.saveVideo`.
+        - **Fallback**: If direct save fails, opens system **Share Sheet** (`@capacitor/share`).
+- **Permissions**:
+    - Added `NSPhotoLibraryAddUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSMicrophoneUsageDescription`.
+- **Assets**:
+    - Localized `raccoon_head.glb` to `public/models/` for offline support.
 
 ### `src/components/Avatar.tsx`
 - **Positioning**: moved from Matrix-based to **Landmark-based** (using Nose Tip index 1).

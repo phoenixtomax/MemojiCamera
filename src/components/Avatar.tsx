@@ -3,9 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Verified Working Sample (MediaPipe Raccoon Head - Head Only, 52 Blendshapes)
-// This is the official sample model for testing MediaPipe blendshapes.
-const AVATAR_URL = "https://storage.googleapis.com/mediapipe-tasks/face_landmarker/raccoon_head.glb";
+const AVATAR_URL = "/models/raccoon_head.glb";
 
 export function Avatar({ faceDataRef }: { faceDataRef: any }) {
     const { scene } = useGLTF(AVATAR_URL);

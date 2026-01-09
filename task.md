@@ -11,4 +11,11 @@
 - [x] Implement AR Face Overlay (Avatar mask)
 - [x] Refine Tracking and Visibility logic
 - [x] Fix AR Alignment (Mirroring, Scaling, Landmarks) <!-- id: 4 -->
+- [x] Fix AR Alignment (Mirroring, Scaling, Landmarks) <!-- id: 4 -->
 - [x] Refine Avatar Model (Raccoon Head & Auto-Calibration) <!-- id: 5 -->
+- [x] Implement Camera UI Layout (Record, Gallery, Switch Buttons) <!-- id: 6 -->
+- [x] Implement Recording (Composite Video+AR, Save to Gallery) <!-- id: 7 -->
+- [x] Fix Recording & Gallery Permissions (Info.plist) <!-- id: 8 -->
+- [x] Debug Recording (iOS MimeType & Path Fixes) <!-- id: 9 -->
+- [x] Implement Robust Save (Share Sheet Fallback) <!-- id: 10 -->
+- [x] Localize Avatar Asset <!-- id: 11 -->
